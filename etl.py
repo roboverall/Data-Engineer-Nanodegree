@@ -6,6 +6,18 @@ from sql_queries import *
 
 
 def process_song_file(cur, filepath):
+    """
+    Description: This function takes a json file from the song_data directory,
+    transforms the data and loads into several tables in the postgres database:
+    Songs (dimension), Artists (Dimension).
+    
+    Args:
+        cur: the cursor object.
+        filepath: filepath of json file withing log_data directory
+    
+    Returns:
+        None
+    """
     # open song file
     df = pd.read_json(filepath , typ='series')
 
@@ -21,6 +33,18 @@ def process_song_file(cur, filepath):
 
 
 def process_log_file(cur, filepath):
+    """
+    Description: This function takes a json file from the log_data directory,
+    transforms the data and loads into several tables in the postgres database:
+    Time (dimension), Users (Dimension) and Songplays (Fact).    
+    
+    Args:
+        cur: the cursor object.
+        filepath: filepath of json file withing log_data directory
+    
+    Returns:
+        None
+    """
     # open log file
     df = pd.read_json(filepath, lines=True)
 
@@ -70,6 +94,20 @@ def process_log_file(cur, filepath):
 
 
 def process_data(cur, conn, filepath, func):
+    """
+    This function is responsible for fetching all filepaths (json) within the supplied directory
+    and for each file: executes the ingestion pipeline (dependent on the supplied function) that
+    extracts, transforms and loads the data into the database.
+    
+    Args:
+        cur: the cursor object.
+        conn: connection to database.
+        filepath: filepath of directory containing json files for ETL process.
+        func: function that does the ETL process into the database.
+    
+    Returns:
+        None
+    """
     # get all files matching extension from directory
     all_files = []
     for root, dirs, files in os.walk(filepath):
@@ -89,6 +127,16 @@ def process_data(cur, conn, filepath, func):
 
 
 def main():
+    """
+    This function:
+        - Connects to Postgres Database and create cursor object 
+        - Executes process_data function for song_data files
+        - Executes process_data function for log_data files
+        - Close connection to Postgres DB
+        
+    Returns:
+        None
+    """
     conn = psycopg2.connect("host=127.0.0.1 dbname=sparkifydb user=student password=student")
     cur = conn.cursor()
 
